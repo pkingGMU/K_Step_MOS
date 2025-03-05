@@ -157,6 +157,12 @@ for file = 1:height(fileList)
         % Find the rows in lfoot_final that have at least one non-zero element
         non_empty_rows_lfoot_final = any(lfoot_final,2);
 
+        % Find the rows in flumbar_final that have at least one non-zero element
+        non_empty_rows_flumbar_final = any(flumbar_final,2);
+
+        % Find the rows in blumbar_final that have at least one non-zero element
+        non_empty_rows_blumbar_final = any(blumbar_final,2);
+
         % Find the rows in rfoot_final that have at least one non-zero element
         non_empty_rows_HMD_corrected = any(HMD_corrected,2);
 
