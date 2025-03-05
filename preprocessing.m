@@ -52,23 +52,11 @@ for file = 1:height(fileList)
             headerInfo.Corner_TopRight_PositionZ]);
         
         %%%Getting trajectories for sensors in linear matrix
-
-        %Left foot sensor
-        LFootlin = data(:,21:23);
-%         LFootlin = data(:,27:29);
-        %LFootrot = [data.Foot_1RotationX, data.Foot_1RotationY, data.Foot_1RotationZ];
-        %Right foot sensor
-        RFootlin = data(:,27:29);
-%         RFootlin = data(:,21:23);
-        %RFootrot = [data.Foot_2RotationX, data.Foot_2RotationY, data.Foot_2RotationZ];
-        %HMD sensor
-        HMDlin = data(:,3:5);
-
-        %HMDrot = [data.HeadSetRotationX, data.HeadSetRotationY,...
-        %   data.HeadSetRotationZ];
-        LFootlin = table2array(LFootlin);
-        RFootlin = table2array(RFootlin);
-        HMDlin = table2array(HMDlin);
+        LFootlin = [data.leftFootPositionX data.leftFootPositionY data.leftFootPositionZ];
+                RFootlin = [data.rightFootPositionX data.rightFootPositionY data.rightFootPositionZ];
+        HMDlin = [data.HeadSetPositionX data.HeadSetPositionY data.HeadSetPositionZ];
+        FLumbarlin = [data.FrontLumbarPositionX data.FrontLumbarPositionY data.FrontLumbarPositionZ];
+        BLumbarlin = [data.BackLumbarPositionX data.BackLumbarPositionY data.BackLumbarPositionZ];
 
         %create average vectors from existing coordinates
         origin = mean([BottomLeft; BottomRight],1);
