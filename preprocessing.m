@@ -5,6 +5,9 @@ clear all
 close all
 clc
 
+% Local Imports
+addpath(genpath('Functions'));
+
 % Data directory and file list
 directory = strcat(pwd, '/Data');
 fileList = dir(directory);
@@ -172,10 +175,13 @@ for file = 1:height(fileList)
         % Extract the common rows from all three matrices
         rfoot_final = rfoot_final(common_non_empty_rows,:);
         lfoot_final = lfoot_final(common_non_empty_rows,:);
+        flumbar_final = flumbar_final(common_non_empty_rows,:);
+        blumbar_final = blumbar_final(common_non_empty_rows,:);
         HMD_corrected = HMD_corrected(common_non_empty_rows,:);
 
         %filtering parameters
         fc = 6;
+        fs = 100;
         [b,a] = butter(2,fc/(fs/2));
 
         %filter corrected trajectory
@@ -185,11 +191,18 @@ for file = 1:height(fileList)
         rfoot_filt= filtfilt(b,a,rfoot_final);
         %%lfoot
         lfoot_filt= filtfilt(b,a,lfoot_final);
+        %%rfoot
+        flumbar_filt= filtfilt(b,a,flumbar_final);
+        %%lfoot
+        blumbar_filt= filtfilt(b,a,blumbar_final);
+
 
         %%use velocity of HMD loop calculator here
         velHead = zeros(length(HMD_filt),3);
         velRFoot = zeros(length(rfoot_filt),3);
         velLFoot = zeros(length(lfoot_filt),3);
+        velflumbar = zeros(length(flumbar_filt),3);
+        velblumbar = zeros(length(blumbar_filt),3);
 
         for n=2:length(velHead)-1
             velHead(n,:) = (HMD_filt(n+1,:) - HMD_filt(n-1,:)) ./(new_interp_time(n+1) - new_interp_time(n-1));
@@ -203,13 +216,30 @@ for file = 1:height(fileList)
             velLFoot(n,:) = (lfoot_filt(n+1,:) - lfoot_filt(n-1,:)) ./(new_interp_time(n+1) - new_interp_time(n-1));
         end
 
+        for n=2:length(velflumbar)-1
+            velflumbar(n,:) = (flumbar_filt(n+1,:) - flumbar_filt(n-1,:)) ./(new_interp_time(n+1) - new_interp_time(n-1));
+        end
+
+        for n=2:length(velblumbar)-1
+            velblumbar(n,:) = (blumbar_filt(n+1,:) - blumbar_filt(n-1,:)) ./(new_interp_time(n+1) - new_interp_time(n-1));
+        end
+
         %%smooth the filtered data to calculate still period better
         lfoot_velocitysmooth = movmean(vecnorm(velLFoot(2:end,1:2)'), 20);
         rfoot_velocitysmooth = movmean(vecnorm(velRFoot(2:end,1:2)'), 20);
+        
+        flumbar_velocitysmooth = movmean(vecnorm(velflumbar(2:end,1:2)'), 20);
+        blumbar_velocitysmooth = movmean(vecnorm(velblumbar(2:end,1:2)'), 20);
        
         %% creating a distance vector between the HMD and the foot tracker
         rGE_vector = (rfoot_filt(:,1)-HMD_filt(:,1)).*sign(velHead(:,1));
         lGE_vector = (lfoot_filt(:,1)-HMD_filt(:,1)).*sign(velHead(:,1));
+
+        %% Midpoint lumbar
+        mlumbar = (flumbar_filt + blumbar_filt) / 2;
+
+        figure;
+        plot(mlumbar, 'b');  % Plot the right signal in blue
 
         %find peaks that represent heel contact-max distance between HMD and
         %tracker
