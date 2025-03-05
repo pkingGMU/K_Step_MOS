@@ -71,7 +71,6 @@ for file = 1:height(fileList)
         %proper direction
         z = cross (x,y);
 
-
         %logic statement to check the vectors are orthogonal
         dot(z,y) == 0 & dot(z,x) == 0;
 
@@ -107,9 +106,12 @@ for file = 1:height(fileList)
 
         %% Creating corrected trajectories
         %linear
-        lfoot = [G2A*[LFootlin-origin]']';
-        rfoot = [G2A*[RFootlin-origin]']';
-        HMD = [G2A*[HMDlin-origin]']';
+        lfoot = (G2A*(LFootlin - origin)')';
+        rfoot = (G2A*(RFootlin - origin)')';
+        HMD = (G2A*(HMDlin - origin)')';
+        flumbar = (G2A*(FLumbarlin - origin)')';
+        blumbar = (G2A*(BLumbarlin - origin)')';
+
         %%flipping the axes for so that vertical is positive
         HMD = [HMD.*[1, -1, 1]];
         lfoot = [lfoot.*[1, -1, 1]];
