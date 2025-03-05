@@ -53,7 +53,7 @@ for file = 1:height(fileList)
         
         %%%Getting trajectories for sensors in linear matrix
         LFootlin = [data.leftFootPositionX data.leftFootPositionY data.leftFootPositionZ];
-                RFootlin = [data.rightFootPositionX data.rightFootPositionY data.rightFootPositionZ];
+        RFootlin = [data.rightFootPositionX data.rightFootPositionY data.rightFootPositionZ];
         HMDlin = [data.HeadSetPositionX data.HeadSetPositionY data.HeadSetPositionZ];
         FLumbarlin = [data.FrontLumbarPositionX data.FrontLumbarPositionY data.FrontLumbarPositionZ];
         BLumbarlin = [data.BackLumbarPositionX data.BackLumbarPositionY data.BackLumbarPositionZ];
@@ -106,16 +106,18 @@ for file = 1:height(fileList)
 
         %% Creating corrected trajectories
         %linear
-        lfoot = (G2A*(LFootlin - origin)')';
-        rfoot = (G2A*(RFootlin - origin)')';
-        HMD = (G2A*(HMDlin - origin)')';
-        flumbar = (G2A*(FLumbarlin - origin)')';
-        blumbar = (G2A*(BLumbarlin - origin)')';
+        lfoot = (G2A * (LFootlin - origin)')';
+        rfoot = (G2A * (RFootlin - origin)')';
+        HMD = (G2A * (HMDlin - origin)')';
+        flumbar = (G2A * (FLumbarlin - origin)')';
+        blumbar = (G2A * (BLumbarlin - origin)')';
 
         %%flipping the axes for so that vertical is positive
-        HMD = [HMD.*[1, -1, 1]];
-        lfoot = [lfoot.*[1, -1, 1]];
-        rfoot = [rfoot.*[1, -1, 1]];
+        HMD = (HMD .* [1, -1, 1]);
+        lfoot = (lfoot .* [1, -1, 1]);
+        rfoot = (rfoot .* [1, -1, 1]);
+        flumbar = (flumbar .* [1, -1, 1]);
+        blumbar = (blumbar .* [1, -1, 1]);
 
         %% interpolate signal for equal time sample
         %%HMD
