@@ -134,18 +134,11 @@ for file = 1:height(fileList)
         %%rfoot
         [rfoot_corrected, rfoot_final, rfoot_smooth8, rfoot_int] = interpolation(rfoot, data.ElapsedTime, new_interp_time);
         %%lfoot
-        lfoot_time = timeseries(lfoot, data.ElapsedTime);
-        lfoot_int = resample(lfoot_time, new_interp_time);
-
-        %get rid of NAN in data set (first few rows) replace with 0
-        lfoot_int.Data(isnan(lfoot_int.Data)) = 0;
-
-        %changes time series to a matrix for later use
-        lfoot_corrected = lfoot_int.Data;
-        lfoot_final = lfoot_corrected;
-
-        %for gap filling
-        lfoot_smooth8 = movmean(lfoot_corrected, 8);
+        [lfoot_corrected, lfoot_final, lfoot_smooth8, lfoot_int] = interpolation(lfoot, data.ElapsedTime, new_interp_time);
+        %%flumbar
+        [flumbar_corrected, flumbar_final, flumbar_smooth8, flumbar_int] = interpolation(flumbar, data.ElapsedTime, new_interp_time);
+        %%blumbar
+        [blumbar_corrected, blumbar_final, blumbar_smooth8, blumbar_int] = interpolation(blumbar, data.ElapsedTime, new_interp_time);
 
         %% Gap Filling
    
