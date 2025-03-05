@@ -122,7 +122,7 @@ for file = 1:height(fileList)
         %% interpolate signal for equal time sample
         %%HMD
         HMD_time = timeseries(HMD, data.ElapsedTime);
-        new_interp_time = [0:0.01:data.ElapsedTime(end,:)];
+        new_interp_time = (0:0.01:data.ElapsedTime(end,:));
         HMD_int = resample(HMD_time, new_interp_time);
 
         %get rid of NAN in data set (first few rows) replace with 0
@@ -132,18 +132,7 @@ for file = 1:height(fileList)
         HMD_corrected = HMD_int.Data;
 
         %%rfoot
-        rfoot_time = timeseries(rfoot, data.ElapsedTime);
-        rfoot_int = resample(rfoot_time, new_interp_time);
-
-        %get rid of NAN in data set (first few rows) replace with 0
-        rfoot_int.Data(isnan(rfoot_int.Data)) = 0;
-
-        %changes time series to a matrix for later use
-        rfoot_corrected = rfoot_int.Data;
-        rfoot_final = rfoot_corrected;
-        %for gap filling
-        rfoot_smooth8 = movmean(rfoot_corrected, 8);
-
+        [rfoot_corrected, rfoot_final, rfoot_smooth8, rfoot_int] = interpolation(rfoot, data.ElapsedTime, new_interp_time);
         %%lfoot
         lfoot_time = timeseries(lfoot, data.ElapsedTime);
         lfoot_int = resample(lfoot_time, new_interp_time);
