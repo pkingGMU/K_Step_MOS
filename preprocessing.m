@@ -148,102 +148,15 @@ for file = 1:height(fileList)
         lfoot_smooth8 = movmean(lfoot_corrected, 8);
 
         %% Gap Filling
-        %%this is not always needed, especially not in short trials
-        %%find parts of signal that are ruined by poor data tracking
-        fs = 100;
-        %%creating an error threshold for the values 9/15/21
-        %     errorThresholdL = -origin(:,2);%mean(lfoot_smooth8(fs*0.5:fs*3.5,2))*0.8% - *std(lfoot_corrected(fs*0.5:fs*3.5,2))
-        %     errorThresholdR = -origin(:,2);%mean(rfoot_smooth8(fs*0.5:fs*3.5,2))*0.8% - 8*std(lfoot_corrected(fs*0.5:fs*3.5,2))
-        %%if high add 15m to error threshold..
-        if any(lfoot_smooth8(:,2)>15)
-            errorThresholdL= -origin(:,2)+15;
-        else
-            errorThresholdL= -origin(:,2);
-        end
-
-        if any(rfoot_smooth8(:,2)>15)
-            errorThresholdR= -origin(:,2)+15;
-        else
-            errorThresholdR= -origin(:,2);
-        end
-
-        %%identifying time points where the data is beyond said error threshold
-        clear s s2
-        %%left foot
-        k = 1;
-        vrTime = lfoot_int.Time;
-        [badL] = find(lfoot_smooth8(:,2)<errorThresholdL);
-        if isempty(badL)
-            lgapFill = false;
-        else
-            gap = find(diff(badL)>k*1);
-
-            if isempty(gap)
-                gap = length(badL);
-            end
-
-            badL_wGap = [];
-            for n=1:length(gap)
-                if n==1
-                    badL_wGap(n,:) = [max([badL(1)-k; 1]) badL(gap(n))+k];
-                else
-                    badL_wGap(n,:) = [badL(gap(n-1)+1)-k badL(gap(n))+k];
-                end
-            end
-
-            badL_complete = [];
-            for n=1:length(badL_wGap(:,1))
-                badL_complete = [badL_complete;[badL_wGap(n,1):badL_wGap(n,2)]'];
-            end
-
-            lfoot_interpolated = [vrTime, lfoot_smooth8];
-            lfoot_interpolated(badL_complete,:) = [];
-
-
-            for n=1:3
-                s(:,n) = interp1(lfoot_interpolated(:,1), lfoot_interpolated(:,n+1), vrTime(badL_complete), 'l');
-            end
-            lfoot_final(badL_complete,:) = s;
-            lgapFill = true;
-        end
-
-        %%rfoot
-        vrTime = rfoot_int.Time;
-        [badR] = find(rfoot_smooth8(:,2)<errorThresholdR);
-        if isempty(badR)
-            rgapFill = false;
-        else
-            gap = find(diff(badR)>k*1);
-
-            if isempty(gap)
-                gap = length(badR);
-            end
-
-            badR_wGap = [];
-            for n=1:length(gap)
-                if n==1
-                    badR_wGap(n,:) = [max([badR(1)-k; 1]) badR(gap(n))+k];
-                else
-                    badR_wGap(n,:) = [badR(gap(n-1)+1)-k badR(gap(n))+k];
-                end
-            end
-
-            badR_complete = [];
-            for n=1:length(badR_wGap(:,1))
-                badR_complete = [badR_complete;[badR_wGap(n,1):badR_wGap(n,2)]'];
-            end
-
-            rfoot_interpolated = [vrTime, rfoot_smooth8];
-            rfoot_interpolated(badR_complete,:) = [];
-
-            for n=1:3
-                s2(:,n) = interp1(rfoot_interpolated(:,1), rfoot_interpolated(:,n+1), vrTime(badR_complete), 'l');
-            end
-            %to compare gap-filled trials with same trial, remove
-            rfoot_final(badR_complete,:) = s2;
-            rgapFill = true;
-        end
-        clear badR_complete badL_complete
+   
+        % left foot
+        [lfoot_final] = gap_fill(lfoot_final, lfoot_smooth8, lfoot_int, origin);
+        % right foot
+        [rfoot_final] = gap_fill(rfoot_final, rfoot_smooth8, rfoot_int, origin);
+        % front lumbar
+        [flumbar_final] = gap_fill(flumbar_final, flumbar_smooth8, flumbar_int, origin);
+        % front lumbar
+        [blumbar_final] = gap_fill(blumbar_final, blumbar_smooth8, blumbar_int, origin);
 
         % Find the rows in rfoot_final that have at least one non-zero element
         non_empty_rows_rfoot_final = any(rfoot_final,2);
