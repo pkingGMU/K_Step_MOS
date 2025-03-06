@@ -31,7 +31,11 @@ for file = 1:length(matFiles)
     P_output = struct();
     step_counter = 1;
     
+    mos_matrix = [];
+    start_leg = allevents(1, 2);
+
     for hs_frame = 1:length(allevents)
+
         % Try catch to end the loop when we get to the end
         try 
             allevents(hs_frame + 2, 2);
@@ -44,8 +48,7 @@ for file = 1:length(matFiles)
         if allevents(hs_frame,2) == 2 || allevents(hs_frame,2) == 4
             continue
         end
-    
-    
+
         % Skip over turns
         if abs(allevents(hs_frame,1) - allevents(hs_frame+2,1)) > 200
             continue
@@ -58,9 +61,9 @@ for file = 1:length(matFiles)
     
         %%% Calculations
         
-       % Determine leg
+        % Determine leg
         leg_side = allevents(hs_frame, 2);
-        
+
         % We do this to set the correct data for indexing based on which foot
         % is the starting foot
         if leg_side == 1
@@ -83,6 +86,115 @@ for file = 1:length(matFiles)
         steps(step_counter, 1) = step_length;
         steps(step_counter, 2) = step_width;
         steps(step_counter, 3) = gait_speed;
+
+        %% MOS
+
+        % MOS Inputs
+        COM_AP = mlumbar(:, 1);
+        COM_ML = mlumbar(:, 3);
+        COM_UP = mlumbar(:, 2);
+        
+        rank_ap = rfoot_final(: , 1);
+        rank_ml = rfoot_final(: , 3);
+        rank_up = rfoot_final(: , 2);
+        
+        lank_ap = lfoot_final(: , 1);
+        lank_ml = lfoot_final(: , 3);
+        lank_up = lfoot_final(: , 2);
+        
+        rtoe_ap = rfoot_final(: , 1);
+        
+        ltoe_ap = lfoot_final(: , 1);
+
+        hs = allevents(hs_frame, 1);
+        opp_to = allevents(hs_frame + 1, 1);
+        opp_hs = allevents(hs_frame + 2, 1);
+        to = allevents(hs_frame + 3, 1);
+
+        hs_foot = allevents(hs_frame ,2);
+
+        % create CoM vector and  Ankle vector
+        % at heelstrike
+        CoM_Vec_at_hs = [COM_AP(hs);COM_ML(hs);COM_UP(hs)];
+        RAnk_Vec_at_hs = [rank_ap(hs);rank_ml(hs);rank_up(hs)];
+        LAnk_Vec_at_hs = [lank_ap(hs);lank_ml(hs);lank_up(hs)];
+        % at opposite heelstrike
+        CoM_Vec_at_ohs = [COM_AP(opp_hs);COM_ML(opp_hs);COM_UP(opp_hs)];
+        RAnk_Vec_at_ohs = [rank_ap(opp_hs);rank_ml(opp_hs);rank_up(opp_hs)];
+        LAnk_Vec_at_ohs = [lank_ap(opp_hs);lank_ml(opp_hs);lank_up(opp_hs)];
+        % at toe off
+        CoM_Vec_at_to = [COM_AP(to);COM_ML(to);COM_UP(to)];
+        RAnk_Vec_at_to = [rank_ap(to);rank_ml(to);rank_up(to)];
+        LAnk_Vec_at_to = [lank_ap(to);lank_ml(to);lank_up(to)];
+        % at opposite toe off
+        CoM_Vec_at_oto = [COM_AP(opp_to);COM_ML(opp_to);COM_UP(opp_to)];
+        RAnk_Vec_at_oto = [rank_ap(opp_to);rank_ml(opp_to);rank_up(opp_to)];
+        LAnk_Vec_at_oto = [lank_ap(opp_to);lank_ml(opp_to);lank_up(opp_to)];
+
+        % calculate center of mass velocity
+        fr = 100;
+        dt = 1/fr;
+        
+        for i = 1:length(COM_AP)-1
+            CoM_vel_AP(i,1) = (COM_AP(i+1)-COM_AP(i))/dt;
+            CoM_vel_ML(i,1) = (COM_ML(i+1)-COM_ML(i))/dt;
+        end
+       
+    
+        if leg_side ~= start_leg
+            continue
+        end
+
+        if leg_side == 3% left heel strike/gc
+            LBoS_AP_hs = ltoe_ap(hs);
+            LBoS_ML_hs = lank_ml(hs);
+            RBoS_AP_hs = rtoe_ap(opp_hs);
+            RBoS_ML_hs = rank_ml(opp_hs);
+            LBoS_AP_to = ltoe_ap(to);
+            LBoS_ML_to = lank_ml(to);
+            RBoS_AP_to = rtoe_ap(opp_to);
+            RBoS_ML_to = rank_ml(opp_to);
+        
+            %acl_MoS(CoM_Vec,ank_vec, CoM, CoM_vel, BoS)
+        
+            L_MoS_AP_hs = calc_MoS(CoM_Vec_at_hs,LAnk_Vec_at_hs,COM_AP(hs),CoM_vel_AP(hs),LBoS_AP_hs);
+            R_MoS_AP_hs = calc_MoS(CoM_Vec_at_ohs,RAnk_Vec_at_ohs,COM_AP(opp_hs),CoM_vel_AP(opp_hs),RBoS_AP_hs);
+            L_MoS_ML_hs = calc_MoS(CoM_Vec_at_hs,LAnk_Vec_at_hs,COM_ML(hs),CoM_vel_ML(hs),LBoS_ML_hs);
+            R_MoS_ML_hs = calc_MoS(CoM_Vec_at_ohs,RAnk_Vec_at_ohs,COM_ML(opp_hs),CoM_vel_ML(opp_hs),RBoS_ML_hs);
+            L_MoS_AP_to = calc_MoS(CoM_Vec_at_to,LAnk_Vec_at_to,COM_AP(to),CoM_vel_AP(to),LBoS_AP_to);
+            R_MoS_AP_to = calc_MoS(CoM_Vec_at_oto,RAnk_Vec_at_oto,COM_AP(opp_to),CoM_vel_AP(opp_to),RBoS_AP_to);
+            L_MoS_ML_to = calc_MoS(CoM_Vec_at_to,LAnk_Vec_at_to,COM_ML(to),CoM_vel_ML(to),LBoS_ML_to);
+            R_MoS_ML_to = calc_MoS(CoM_Vec_at_oto,RAnk_Vec_at_oto,COM_ML(opp_to),CoM_vel_ML(opp_to),RBoS_ML_to);
+        
+        
+        else % right leg heelstrike
+           LBoS_AP_hs = ltoe_ap(opp_hs);
+            LBoS_ML_hs = lank_ml(opp_hs);
+            RBoS_AP_hs = rtoe_ap(hs);
+            RBoS_ML_hs = rank_ml(hs);
+            LBoS_AP_to = ltoe_ap(opp_to);
+            LBoS_ML_to = lank_ml(opp_to);
+            RBoS_AP_to = rtoe_ap(to);
+            RBoS_ML_to = rank_ml(to);
+        
+            L_MoS_AP_hs = calc_MoS(CoM_Vec_at_ohs,LAnk_Vec_at_ohs,COM_AP(opp_hs),CoM_vel_AP(opp_hs),LBoS_AP_hs);
+            R_MoS_AP_hs = calc_MoS(CoM_Vec_at_hs,RAnk_Vec_at_hs,COM_AP(hs),CoM_vel_AP(hs),RBoS_AP_hs);
+            L_MoS_ML_hs = calc_MoS(CoM_Vec_at_ohs,LAnk_Vec_at_ohs,COM_ML(opp_hs),CoM_vel_ML(opp_hs),LBoS_ML_hs);
+            R_MoS_ML_hs = calc_MoS(CoM_Vec_at_hs,RAnk_Vec_at_hs,COM_ML(hs),CoM_vel_ML(hs),RBoS_ML_hs);
+            L_MoS_AP_to = calc_MoS(CoM_Vec_at_oto,LAnk_Vec_at_oto,COM_AP(opp_to),CoM_vel_AP(opp_to),LBoS_AP_to);
+            R_MoS_AP_to = calc_MoS(CoM_Vec_at_to,RAnk_Vec_at_to,COM_AP(to),CoM_vel_AP(to),RBoS_AP_to);
+            L_MoS_ML_to = calc_MoS(CoM_Vec_at_oto,LAnk_Vec_at_oto,COM_ML(opp_to),CoM_vel_ML(opp_to),LBoS_ML_to);
+            R_MoS_ML_to = calc_MoS(CoM_Vec_at_to,RAnk_Vec_at_to,COM_ML(to),CoM_vel_ML(to),RBoS_ML_to);
+        
+            
+        end
+    
+        
+        
+        
+        mos_gait = [L_MoS_AP_hs R_MoS_AP_hs L_MoS_ML_hs R_MoS_ML_hs L_MoS_AP_to R_MoS_AP_to L_MoS_ML_to R_MoS_ML_to];
+        
+        mos_matrix = [mos_gait; mos_matrix];
         
         
         subject = strcat("Subject_", headerInfo.Subject);  % Get the subject from header info
@@ -105,12 +217,15 @@ for file = 1:length(matFiles)
         Output(file).Steplength = steps(:,1);
         Output(file).Stepwidth = steps(:,2);
         Output(file).gaitspeed =  steps(:,3);
+        Output(file).mos = mos_matrix;
         FullOutput = Output;
         step_counter = step_counter + 1;
     
     end
 
-    clear RHS LHS LTO RTO rmintab rmaxtab lmintab lmaxtab ltoeloc ltoemin rtoeloc rtoemin allevents
+    
+
+    clear RHS LHS LTO RTO rmintab rmaxtab lmintab lmaxtab ltoeloc ltoemin rtoeloc rtoemin allevents mos_gait 
 
     FullOutput(file).meanStepLength = mean(FullOutput(file).Steplength);
     FullOutput(file).medianStepLength = median(FullOutput(file).Steplength);
@@ -127,6 +242,20 @@ for file = 1:length(matFiles)
     FullOutput(file).sdGaitSpeed = std(FullOutput(file).gaitspeed);
     FullOutput(file).maxGaitSpeed = max(FullOutput(file).gaitspeed);
     FullOutput(file).minGaitSpeed = min(FullOutput(file).gaitspeed);
+    
+    mos_table = array2table(mos_matrix);
+    mos_table.Properties.VariableNames = {'LMoS_AP_hs','RMoS_AP_hs','LMoS_ML_hs','RMoS_ML_hs','LMoS_AP_to','RMoS_AP_to','LMoS_ML_to','RMoS_ML_to'};
+    mos_output_folder = fullfile(pwd, 'PDTVR', subject, trial);
+
+    if ~exist(mos_output_folder, 'dir')
+        mkdir(mos_output_folder)
+    end
+
+    writetable(mos_table, fullfile(mos_output_folder, 'mos_each_gaitcycle.xlsx'));
+
+
+
+
 
 
 
@@ -148,17 +277,7 @@ save(fullfile(savedir, 'FullOutput.mat'), 'FullOutput');
 FullOutput = load(strcat(pwd, '/PDTVR/FullOutput.mat'));
 FullOutput = FullOutput.FullOutput;
 FullOutput = struct2table(FullOutput, 'AsArray', true);
-% fullframesoutput = struct2table(fullframesoutput);
 
-%% Exporting the Cadence into it's own matrix/csv
-
-% 
-% CadenceOnly = FullOutput.cadence;
-% 
-% writematrix(CadenceOnly, 'CadenceOnly.csv');
-
-%%
-%FullOutput = struct2table(FullOutput);
 sz = [1, 7];
 varNames = {'Subject', 'Task', 'Elevation', 'StepNum', 'Steplength', 'Stepwidth', 'gaitspeed'};
 varTypes = {'string', 'string', 'string', 'double', 'double', 'double', 'double'};
