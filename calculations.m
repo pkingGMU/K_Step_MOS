@@ -105,7 +105,7 @@ for file = 1:length(matFiles)
         Output(file).Steplength = steps(:,1);
         Output(file).Stepwidth = steps(:,2);
         Output(file).gaitspeed =  steps(:,3);
-         FullOutput = Output;
+        FullOutput = Output;
         step_counter = step_counter + 1;
     
     end
