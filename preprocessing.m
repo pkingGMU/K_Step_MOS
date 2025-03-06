@@ -239,7 +239,11 @@ for file = 1:height(fileList)
         mlumbar = (flumbar_filt + blumbar_filt) / 2;
 
         figure;
-        plot(mlumbar, 'b');  % Plot the right signal in blue
+        hold on
+        plot(mlumbar(:,1), 'b'); 
+        plot(mlumbar(:,2), 'r'); 
+        plot(mlumbar(:,3), 'g'); 
+        hold off
 
         %find peaks that represent heel contact-max distance between HMD and
         %tracker
