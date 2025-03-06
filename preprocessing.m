@@ -487,7 +487,7 @@ for file = 1:height(fileList)
         disp('Selected peaks are now displayed in red.');
         disp('Selected peaks are now displayed in blue.');
         
-        clearvars -except rmintab rmaxtab ltoeloc rtoeloc ltoemin rtoemin lmintab lmaxtab lfoot_final rfoot_final headerInfo ...
+        clearvars -except mlumbar rmintab rmaxtab ltoeloc rtoeloc ltoemin rtoemin lmintab lmaxtab lfoot_final rfoot_final headerInfo ...
             fileList directory
         cd("Saved_Process")
         save(strcat(string(headerInfo.Subject), string(headerInfo.Trial)));
