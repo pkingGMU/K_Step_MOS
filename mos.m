@@ -36,9 +36,12 @@ for file = 1:length(matFiles)
 
     
 
-    %% MOS
+
+    mos_matrix = [];
+    start_leg = allevents(1, 2);
 
     for hs_frame = 1:length(allevents)
+
         % Try catch to end the loop when we get to the end
         try 
             allevents(hs_frame + 2, 2);
