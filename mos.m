@@ -200,10 +200,7 @@ for file = 1:length(matFiles)
         
         mos_gait = [L_MoS_AP_hs R_MoS_AP_hs L_MoS_ML_hs R_MoS_ML_hs L_MoS_AP_to R_MoS_AP_to L_MoS_ML_to R_MoS_ML_to];
 
-
-
-
-        
+        mos_matrix = [mos_gait; mos_matrix];
         
         subject = strcat("Subject_", headerInfo.Subject);  % Get the subject from header info
         trial = strcat("Trial_", headerInfo.Trial);     % Get the trial name from header info
