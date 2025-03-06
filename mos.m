@@ -147,6 +147,11 @@ for file = 1:length(matFiles)
         end
         
     
+        if leg_side ~= start_leg
+            continue
+        end
+
+        if leg_side == 3% left heel strike/gc
         LBoS_AP_hs = ltoe_ap(hs);
         LBoS_ML_hs = lank_ml(hs);
         RBoS_AP_hs = rtoe_ap(opp_hs);
@@ -166,6 +171,29 @@ for file = 1:length(matFiles)
         R_MoS_AP_to = calc_MoS(CoM_Vec_at_oto,RAnk_Vec_at_oto,COM_AP(opp_to),CoM_vel_AP(opp_to),RBoS_AP_to);
         L_MoS_ML_to = calc_MoS(CoM_Vec_at_to,LAnk_Vec_at_to,COM_ML(to),CoM_vel_ML(to),LBoS_ML_to);
         R_MoS_ML_to = calc_MoS(CoM_Vec_at_oto,RAnk_Vec_at_oto,COM_ML(opp_to),CoM_vel_ML(opp_to),RBoS_ML_to);
+    
+        
+        else % right leg heelstrike
+           LBoS_AP_hs = ltoe_ap(opp_hs);
+            LBoS_ML_hs = lank_ml(opp_hs);
+            RBoS_AP_hs = rtoe_ap(hs);
+            RBoS_ML_hs = rank_ml(hs);
+            LBoS_AP_to = ltoe_ap(opp_to);
+            LBoS_ML_to = lank_ml(opp_to);
+            RBoS_AP_to = rtoe_ap(to);
+            RBoS_ML_to = rank_ml(to);
+        
+            L_MoS_AP_hs = calc_MoS(CoM_Vec_at_ohs,LAnk_Vec_at_ohs,COM_AP(opp_hs),CoM_vel_AP(opp_hs),LBoS_AP_hs);
+            R_MoS_AP_hs = calc_MoS(CoM_Vec_at_hs,RAnk_Vec_at_hs,COM_AP(hs),CoM_vel_AP(hs),RBoS_AP_hs);
+            L_MoS_ML_hs = calc_MoS(CoM_Vec_at_ohs,LAnk_Vec_at_ohs,COM_ML(opp_hs),CoM_vel_ML(opp_hs),LBoS_ML_hs);
+            R_MoS_ML_hs = calc_MoS(CoM_Vec_at_hs,RAnk_Vec_at_hs,COM_ML(hs),CoM_vel_ML(hs),RBoS_ML_hs);
+            L_MoS_AP_to = calc_MoS(CoM_Vec_at_oto,LAnk_Vec_at_oto,COM_AP(opp_to),CoM_vel_AP(opp_to),LBoS_AP_to);
+            R_MoS_AP_to = calc_MoS(CoM_Vec_at_to,RAnk_Vec_at_to,COM_AP(to),CoM_vel_AP(to),RBoS_AP_to);
+            L_MoS_ML_to = calc_MoS(CoM_Vec_at_oto,LAnk_Vec_at_oto,COM_ML(opp_to),CoM_vel_ML(opp_to),LBoS_ML_to);
+            R_MoS_ML_to = calc_MoS(CoM_Vec_at_to,RAnk_Vec_at_to,COM_ML(to),CoM_vel_ML(to),RBoS_ML_to);
+        
+            
+        end
     
         
         
