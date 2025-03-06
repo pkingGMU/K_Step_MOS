@@ -117,6 +117,8 @@ for file = 1:length(matFiles)
         opp_hs = allevents(hs_frame + 2, 1);
         to = allevents(hs_frame + 3, 1);
 
+        hs_foot = allevents(hs_frame ,2);
+
         % create CoM vector and  Ankle vector
         % at heelstrike
         CoM_Vec_at_hs = [COM_AP(hs);COM_ML(hs);COM_UP(hs)];
